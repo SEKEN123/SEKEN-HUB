@@ -1,5 +1,3 @@
--- Aimbot Script by KR0SS - UI Custom dengan Minimize yang Benar
-
 -- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -41,7 +39,7 @@ FovCircle.Filled = false
 
 -- Create UI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "KR0SSHUB"
+ScreenGui.Name = "SEKENHUB"
 ScreenGui.Parent = game.CoreGui or LocalPlayer:WaitForChild("PlayerGui")
 
 -- Main Frame
@@ -83,7 +81,7 @@ Title.Name = "Title"
 Title.Size = UDim2.new(1, -80, 1, 0)
 Title.Position = UDim2.new(0, 10, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "KR0SS HUB - Aimbot"
+Title.Text = "SEKEN HUB - Aimbot"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 16
@@ -95,7 +93,7 @@ SubTitle.Name = "SubTitle"
 SubTitle.Size = UDim2.new(1, -80, 0, 20)
 SubTitle.Position = UDim2.new(0, 10, 0, 18)
 SubTitle.BackgroundTransparency = 1
-SubTitle.Text = "by KR0SS"
+SubTitle.Text = "by SEKEN"
 SubTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
 SubTitle.Font = Enum.Font.Gotham
 SubTitle.TextSize = 12
