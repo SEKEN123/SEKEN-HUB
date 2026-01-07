@@ -1,4 +1,4 @@
--- Enhanced Aimbot dengan UI Toggle & FOV Control
+-- Enhanced Aimbot dengan UI yang Benar-Benar Hilang
 -- Optimized for Solara Executor
 
 local Players = game:GetService("Players")
@@ -24,6 +24,7 @@ local FOVVisible = true
 local FOVThickness = 2
 local TargetPriority = "Closest"
 local UIVisible = true -- State UI visible/hidden
+local IsMinimized = false -- State minimize
 
 -- Prediction Variables
 local PreviousPositions = {}
@@ -43,7 +44,7 @@ Frame.Size = UDim2.new(0, 300, 0, 390)
 Frame.Position = UDim2.new(0.5, -150, 0, 10)
 Frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
 Frame.BackgroundTransparency = 0.15
-Frame.Visible = UIVisible
+Frame.Visible = UIVisible and not IsMinimized
 Frame.Parent = ScreenGui
 
 local UICorner = Instance.new("UICorner")
@@ -107,7 +108,7 @@ MinimizeFrame.Size = UDim2.new(0, 40, 0, 25)
 MinimizeFrame.Position = UDim2.new(0.5, -20, 0, 10)
 MinimizeFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
 MinimizeFrame.BackgroundTransparency = 0.15
-MinimizeFrame.Visible = false
+MinimizeFrame.Visible = UIVisible and IsMinimized
 MinimizeFrame.Parent = ScreenGui
 
 local MinimizeCorner = Instance.new("UICorner")
@@ -127,28 +128,6 @@ MaximizeButton.Font = Enum.Font.GothamBold
 MaximizeButton.TextSize = 12
 MaximizeButton.BackgroundTransparency = 1
 MaximizeButton.Parent = MinimizeFrame
-
--- UI Toggle Indicator (muncul saat UI hidden)
-local UIToggleIndicator = Instance.new("TextLabel")
-UIToggleIndicator.Size = UDim2.new(0, 150, 0, 30)
-UIToggleIndicator.Position = UDim2.new(0, 10, 1, -40)
-UIToggleIndicator.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
-UIToggleIndicator.BackgroundTransparency = 0.3
-UIToggleIndicator.Text = "📱 UI Hidden (Press " .. tostring(UIToggleKey):match("%w+$") .. ")"
-UIToggleIndicator.TextColor3 = Color3.new(1, 1, 1)
-UIToggleIndicator.Font = Enum.Font.Gotham
-UIToggleIndicator.TextSize = 12
-UIToggleIndicator.Visible = false
-UIToggleIndicator.Parent = ScreenGui
-
-local IndicatorCorner = Instance.new("UICorner")
-IndicatorCorner.CornerRadius = UDim.new(0, 6)
-IndicatorCorner.Parent = UIToggleIndicator
-
-local IndicatorStroke = Instance.new("UIStroke")
-IndicatorStroke.Thickness = 1
-IndicatorStroke.Color = Color3.new(0.7, 0.7, 0.7)
-IndicatorStroke.Parent = UIToggleIndicator
 
 -- Button Creation Function
 local function createButton(name, position, text)
@@ -216,31 +195,24 @@ local function updateFOV()
     end
 end
 
--- Fungsi untuk toggle UI visibility
+-- Fungsi untuk toggle UI visibility (TRUE HIDDEN - tidak ada indikator)
 local function toggleUI()
     UIVisible = not UIVisible
     
     if UIVisible then
-        -- Show UI based on current state
-        if Frame.Visible then
-            -- UI is in normal mode
-            Frame.Visible = true
-            MinimizeFrame.Visible = false
-        else
-            -- UI is in minimized mode
+        -- Show UI based on current minimize state
+        if IsMinimized then
             Frame.Visible = false
             MinimizeFrame.Visible = true
+        else
+            Frame.Visible = true
+            MinimizeFrame.Visible = false
         end
-        UIToggleIndicator.Visible = false
     else
-        -- Hide all UI
+        -- Hide ALL UI completely
         Frame.Visible = false
         MinimizeFrame.Visible = false
-        UIToggleIndicator.Visible = true
     end
-    
-    -- Update UI toggle indicator text
-    UIToggleIndicator.Text = "📱 UI Hidden (Press " .. tostring(UIToggleKey):match("%w+$") .. ")"
 end
 
 -- Fungsi untuk update semua GUI text
@@ -256,7 +228,6 @@ local function updateGUI()
     UIToggleKeyButton.Text = "📱 UI Key: " .. tostring(UIToggleKey):match("%w+$")
     StatusLabel.Text = "🔒 Hold " .. tostring(AimbotToggleKey):match("%w+$") .. " to Aim"
     FOVToggle.Text = FOVVisible and "👁️ FOV: ON" or "👁️ FOV: OFF"
-    UIToggleIndicator.Text = "📱 UI Hidden (Press " .. tostring(UIToggleKey):match("%w+$") .. ")"
 end
 
 -- Save Settings Function
@@ -637,7 +608,6 @@ UIToggleKeyButton.MouseButton1Click:Connect(function()
         if input.UserInputType == Enum.UserInputType.Keyboard then
             UIToggleKey = input.KeyCode
             UIToggleKeyButton.Text = "📱 UI Key: " .. tostring(UIToggleKey):match("%w+$")
-            UIToggleIndicator.Text = "📱 UI Hidden (Press " .. tostring(UIToggleKey):match("%w+$") .. ")"
             UIToggleKeyButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
             uiKeybindConnection:Disconnect()
             uiKeybindConnection = nil
@@ -655,17 +625,20 @@ LoadButton.MouseButton1Click:Connect(function()
 end)
 
 -- MINIMIZE FUNCTIONALITY
-local IsMinimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
     IsMinimized = true
-    Frame.Visible = false
-    MinimizeFrame.Visible = true
+    if UIVisible then
+        Frame.Visible = false
+        MinimizeFrame.Visible = true
+    end
 end)
 
 MaximizeButton.MouseButton1Click:Connect(function()
     IsMinimized = false
-    Frame.Visible = true
-    MinimizeFrame.Visible = false
+    if UIVisible then
+        Frame.Visible = true
+        MinimizeFrame.Visible = false
+    end
 end)
 
 -- Input Handling
@@ -707,7 +680,8 @@ updateFOV()
 autoLoadSettings()
 
 print("🎯 Enhanced Aimbot loaded successfully!")
-print("✅ New Features: UI Toggle & FOV Visibility Control")
-print("📱 Press " .. tostring(UIToggleKey):match("%w+$") .. " to toggle UI visibility")
-print("👁️ Press FOV button to toggle FOV circle visibility")
-print("🎯 Hold " .. tostring(AimbotToggleKey):match("%w+$") .. " to activate aimbot")
+print("✅ UI sekarang benar-benar HILANG saat di-toggle OFF")
+print("📱 Tekan " .. tostring(UIToggleKey):match("%w+$") .. " untuk toggle UI (ON/OFF)")
+print("👁️ Tekan tombol FOV untuk toggle FOV circle visibility")
+print("🎯 Tahan " .. tostring(AimbotToggleKey):match("%w+$") .. " untuk mengaktifkan aimbot")
+print("💡 Tips: Ingat tombol " .. tostring(UIToggleKey):match("%w+$") .. " untuk menampilkan UI kembali!")
