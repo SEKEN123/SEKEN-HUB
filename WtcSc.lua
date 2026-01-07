@@ -37,6 +37,10 @@ FovCircle.Thickness = 1
 FovCircle.Transparency = 1
 FovCircle.Filled = false
 
+-- Posisi circle di tengah layar
+local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+FovCircle.Position = screenCenter
+
 -- Create UI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "SEKENHUB"
@@ -588,6 +592,12 @@ ToggleUIButton.MouseButton1Click:Connect(function()
     end
 end)
 
+-- Function untuk update posisi circle jika ukuran layar berubah
+Camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+    screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    FovCircle.Position = screenCenter
+end)
+
 -- Aimbot Functions
 function IsPlayerVisible(player)
     if not Settings.WallCheck then return true end
@@ -637,8 +647,8 @@ function GetClosestPlayer()
         local screenPoint, onScreen = Camera:WorldToViewportPoint(part.Position)
         
         if onScreen then
-            local mousePos = UserInputService:GetMouseLocation()
-            local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - mousePos).Magnitude
+            -- Gunakan pusat layar (screenCenter) sebagai referensi, bukan posisi mouse
+            local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - screenCenter).Magnitude
             
             if distance < shortestDistance then
                 shortestDistance = distance
@@ -689,8 +699,9 @@ end
 -- Main Aimbot Loop
 local debounce = false
 RunService.RenderStepped:Connect(function()
-    local mousePos = UserInputService:GetMouseLocation()
-    FovCircle.Position = mousePos
+    -- Update posisi circle ke tengah layar setiap frame
+    screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    FovCircle.Position = screenCenter
     
     if Settings.Enabled then
         local shouldAim = false
